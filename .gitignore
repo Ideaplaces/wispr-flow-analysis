@@ -1,0 +1,30 @@
+# Snapshot of Wispr Flow's SQLite (multi-GB, contains personal dictation data)
+data/snapshot.sqlite
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
+
+# Generated outputs (analytics + dashboard + share drafts)
+outputs/*
+!outputs/.gitkeep
+data/*
+!data/.gitkeep
+
+# Secrets
+.env
+.env.local
+*.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.eggs/
+*.egg-info/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store

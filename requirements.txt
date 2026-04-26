@@ -1,0 +1,5 @@
+matplotlib>=3.7
+numpy>=1.24
+openai>=1.50           # Azure OpenAI client
+anthropic>=0.30        # Optional fallback
+python-dotenv>=1.0     # Optional, for richer .env handling
