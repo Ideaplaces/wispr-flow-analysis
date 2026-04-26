@@ -1,0 +1,147 @@
+# Example Output
+
+This is the live output from the maintainer's own Wispr Flow corpus, captured as a snapshot on 2026-04-26. It exists so you can see what the toolkit produces against five and a half months of real dictation, before you run it on your own.
+
+The numbers below are real. Your numbers will be different.
+
+## Headline
+
+| Metric | Value |
+|---|---|
+| Period | 2025-11-08 to 2026-04-25 |
+| Dictations | 26,577 |
+| Words | 993,201 |
+| Speech captured | 135.8 hours |
+| Active days | 154 |
+| Speaking speed | 121.9 WPM |
+| Languages | en (24,622), fr (524), en-GB (189), ro (167) |
+| Audio blobs preserved | 2,653 (16.1 hours of WAV) |
+
+## Speed and time saved
+
+| Typing benchmark | Speed multiplier | Hours saved |
+|---|---|---|
+| Casual (35 WPM) | 3.48x faster | 342 hours |
+| Professional (60 WPM) | 2.03x faster | 148 hours |
+| Fast (80 WPM) | 1.52x faster | 81 hours |
+
+## Peaks and streaks
+
+- **Longest streak:** 48 days (6 weeks) of unbroken local activity
+- **Peak day:** 2026-01-18 with 19,048 words across 331 dictations
+- **Busiest hour (local):** 22:00
+- **Busiest weekday:** Tuesday
+
+## Recent 30 days
+
+| Metric | Value |
+|---|---|
+| Dictations | 6,325 across 30 active days |
+| Words | 257,450 (8,582 per active day) |
+| Talking time | 2,077 minutes (69 minutes per active day) |
+| Saved vs 60 WPM typing | 38.8 hours |
+
+## The two voices
+
+This is the part `superwhisper-analysis` could not see. Wispr Flow records which app you dictated into, so the corpus splits cleanly into two distinct voices.
+
+### AI-facing apps (Cursor, VS Code, Claude Desktop)
+
+| | |
+|---|---|
+| Dictations | 20,356 |
+| Words | 906,773 |
+| Speed | 128 WPM |
+| Edit rate | 1.7% |
+
+This is conversational thinking out loud at a model. Almost never edited because the AI is the consumer.
+
+### Human-facing apps (Slack, Discord, WhatsApp, Messages, Signal)
+
+| | |
+|---|---|
+| Dictations | 4,701 |
+| Words | 68,705 |
+| Speed | 99 WPM |
+| Edit rate | 85.9% |
+| Real typing replaced | 8.4 hours |
+
+Almost everything sent to a person gets a second pass. The edit-rate split (1.7% vs 85.9%) is the cleanest signal in the corpus that voice plays two different roles in modern work.
+
+## Top apps by volume
+
+| App | Dictations | Words | Edit rate |
+|---|---|---|---|
+| Cursor | 18,351 | 813,335 | 0.6% |
+| VS Code | 1,715 | 81,415 | 0.0% |
+| Slack | 3,967 | 58,255 | 87.2% |
+| Arc Browser | 566 | 12,069 | 45.2% |
+| Claude Desktop | 290 | 12,023 | 80.3% |
+| WhatsApp | 234 | 3,846 | 90.6% |
+| Messages | 264 | 3,617 | 54.2% |
+
+The pattern is clear: AI-consuming surfaces have edit rates near zero, human-consuming surfaces have edit rates above 80%.
+
+## Wispr's own achievement notifications
+
+The `RemoteNotifications` table in `flow.sqlite` contains milestone alerts the platform emitted as you crossed thresholds. These are quoted verbatim by the AI summary script:
+
+| Title | Quote |
+|---|---|
+| 20,000 words crossed | "That's over 2 hours of non-stop talking. Basically a TED Talk." |
+| 3 months straight | "12 weeks of daily Flow. Dictation is now part of your DNA." |
+| 123,456 words | "It's just 7, 8, and 9 left and then you've got all the digits!" |
+| 500,000 words | "Race to a million? Halfway complete." |
+| 6 months daily | "Half a year without missing a beat. You've mastered voice-first workflow." |
+| 1,000,000 words | "One. Million. Words. Roll credits." |
+| 9 months unbroken | "39 weeks straight. At this point, typing feels like going backwards." |
+| 1,500,000 words | "You are a living legend. No one has gotten this far." |
+
+The 1.5M number is higher than the 993k captured in the local `History` table because Wispr's backend counts include archived rows the local cache does not retain. Both numbers are real.
+
+## Audio coverage
+
+In addition to text, 2,656 dictations have actual voice WAVs stored alongside (16-bit PCM mono 16 kHz, 1.85 GB total, 16.1 hours):
+
+| App | Recordings | Audio hours |
+|---|---|---|
+| VS Code | 1,715 | 11.0 |
+| Cursor | 583 | 3.6 |
+| Slack | 107 | 0.3 |
+| Claude Desktop | 54 | 0.2 |
+| Arc | 44 | 0.2 |
+| WhatsApp | 36 | 0.2 |
+| Other | 117 | 0.6 |
+
+That is enough to fine-tune a voice clone (XTTS-v2, Tortoise, F5-TTS) entirely locally. ElevenLabs Professional Voice Cloning recommends 3 hours of source audio. There are 16.
+
+## Dashboard
+
+![Wispr Flow dashboard, twelve panels](examples/dashboard.png)
+
+The full image lives at [`examples/dashboard.png`](examples/dashboard.png). It packs twelve panels: daily volume, daily count, cumulative words, cumulative hours saved, hour-of-day, day-of-week, per-app split, edit-rate split, AI-vs-human voice, speed multipliers, daily heatmap, and the achievements wall.
+
+## Sample share posts
+
+The AI summary script generates four variants per run. Two are checked in here as examples:
+
+- [`examples/share_post.md`](examples/share_post.md) -- the data-heavy LinkedIn variant
+- [`examples/share_thread.md`](examples/share_thread.md) -- the numbered Twitter/X thread
+
+These were generated by Azure OpenAI (`gpt-4o-mini`) using the prompt in `scripts/ai_summary.py`. With a stronger model (`gpt-4o`, `gpt-4.1`, or Claude Sonnet 4.6), the output is sharper and lands closer to your authentic voice. Pick whichever voice fits the surface you're posting to.
+
+## Reproducing this
+
+```bash
+git clone https://github.com/Ideaplaces/wispr-flow-analysis.git
+cd wispr-flow-analysis
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env  # add Azure OpenAI or Anthropic key
+python scripts/snapshot.py
+python scripts/analytics.py
+python scripts/visualize.py
+python scripts/ai_summary.py
+```
+
+Five and a half minutes end to end on a recent Mac, including the LLM step. Your numbers replace the ones above. Your dashboard replaces this one. Your share post pops out of the same prompt against your data.

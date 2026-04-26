@@ -32,16 +32,18 @@ python scripts/ai_summary.py   # -> outputs/share_*.md
 
 Full setup details in [SETUP.md](SETUP.md). Configuration reference in [CONFIG_EXAMPLE.md](CONFIG_EXAMPLE.md).
 
-## Sample output
+## Example output
 
-The share draft starts with a Wispr-stamped milestone (verbatim from your `RemoteNotifications` table) and unpacks the two-voices insight in your own data. Every number is real and pulled from your corpus. The script generates four variants per run:
+See [EXAMPLE.md](EXAMPLE.md) for the maintainer's actual run: 26,577 dictations, 993,201 words, 135.8 hours, the two-voices split (1.7% edit rate to AI vs 85.9% to humans), and the eight Wispr-emitted achievement notifications quoted verbatim. Your numbers will be different.
 
-- `share_data_heavy.md` -- leads with the numbers
-- `share_narrative_heavy.md` -- leads with the story
-- `share_single_stat_hook.md` -- one Wispr quote on its own line, then unpacks it
-- `share_thread.md` -- 8 to 12 numbered tweets
+![Sample dashboard, twelve panels](examples/dashboard.png)
 
-Pick whichever variant matches the surface and the day.
+The script generates four share-post variants per run. Two examples are checked in:
+
+- [`examples/share_post.md`](examples/share_post.md) -- LinkedIn-format data-heavy draft
+- [`examples/share_thread.md`](examples/share_thread.md) -- numbered Twitter/X thread
+
+The other two variants (`narrative_heavy`, `single_stat_hook`) generate when you run the script. Pick whichever variant matches the surface and the day.
 
 ## What's in the schema that SuperWhisper did not have
 
