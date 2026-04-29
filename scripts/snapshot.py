@@ -42,7 +42,11 @@ def main():
         dst.unlink()
     dst_conn = sqlite3.connect(str(dst))
     with dst_conn:
-        src_conn.backup(dst_conn, pages=2000, progress=lambda r, p, t: print(f"  copied {t - r} / {t} pages", end="\r"))
+        src_conn.backup(
+            dst_conn,
+            pages=2000,
+            progress=lambda r, p, t: print(f"  copied {t - r} / {t} pages", end="\r", flush=True),
+        )
     print()
     src_conn.close()
     dst_conn.close()
