@@ -62,4 +62,4 @@ If neither is set, `scripts/ai_summary.py` falls back to a hand-built template t
 | `TYPING_SPEEDS["professional"]` | 60 WPM | Touch typist |
 | `TYPING_SPEEDS["fast"]` | 80 WPM | Expert typist |
 
-These match the benchmarks used in `crarau/superwhisper-analysis`. Edit them in `config.py` if your audience needs a different baseline.
+Edit these in `config.py` if your audience needs a different baseline.

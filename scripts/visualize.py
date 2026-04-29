@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Render the 12-panel Wispr Flow dashboard.
 
-Eight panels mirror crarau/superwhisper-analysis (daily words, daily count,
+Eight panels cover the universal usage view (daily words, daily count,
 cumulative words, cumulative time saved, hour, day of week, speed multiplier,
 heatmap). Four are Wispr-only: per-app split, edit-rate split, AI-vs-human
 voice split, and the achievement wall.

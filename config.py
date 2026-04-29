@@ -27,7 +27,8 @@ SNAPSHOT_PATH = os.environ.get("SNAPSHOT_PATH", str(ROOT / "data" / "snapshot.sq
 # Analysis parameters
 # ---------------------------------------------------------------------------
 
-# Typing benchmarks in words per minute, matching crarau/superwhisper-analysis.
+# Typing benchmarks in words per minute. Casual = hunt-and-peck, professional =
+# touch typist, fast = expert typist.
 TYPING_SPEEDS = {"casual": 35, "professional": 60, "fast": 80}
 
 # Local timezone offset in minutes (Eastern Daylight Time = -240).

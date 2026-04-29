@@ -43,7 +43,7 @@ The numbers below are real. Your numbers will be different.
 
 ## The two voices
 
-This is the part `superwhisper-analysis` could not see. Wispr Flow records which app you dictated into, so the corpus splits cleanly into two distinct voices.
+Wispr Flow records which app you dictated into, so the corpus splits cleanly into two distinct voices.
 
 ### AI-facing apps (Cursor, VS Code, Claude Desktop)
 

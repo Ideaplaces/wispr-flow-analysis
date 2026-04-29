@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 """Analytics rollup for the Wispr Flow corpus.
 
-Inspired by crarau/superwhisper-analysis but extended for Wispr Flow's
-richer schema. Includes everything SuperWhisper analytics produced (time
-savings vs typing, hour and day patterns, cumulative time saved, peak day,
-recent 30-day snapshot) PLUS five Wispr-only dimensions:
+Covers the universal usage view (time savings vs typing, hour and day
+patterns, cumulative time saved, peak day, recent 30-day snapshot) plus
+five Wispr-only dimensions:
 
     - Per-app split (Cursor vs Slack vs Browser, etc.)
-    - Edit-rate split (formatted vs Chip's edited text)
+    - Edit-rate split (formatted vs user-edited text)
     - AI-facing vs human-facing voice (the "two voices" insight)
     - Daily streak detection
     - Wispr's own RemoteNotifications achievements (verbatim quotes)
