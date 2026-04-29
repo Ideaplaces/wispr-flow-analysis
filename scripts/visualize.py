@@ -10,6 +10,7 @@ Output: outputs/dashboard.png
 """
 
 import json
+import re
 import sys
 from collections import defaultdict
 from datetime import datetime
@@ -19,6 +20,31 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
+
+# Strip emoji and other pictographs that DejaVu Sans cannot render.
+# Keeps the dashboard free of tofu boxes and the matplotlib glyph warnings.
+_EMOJI_RE = re.compile(
+    "["
+    "\U0001F300-\U0001F5FF"
+    "\U0001F600-\U0001F64F"
+    "\U0001F680-\U0001F6FF"
+    "\U0001F700-\U0001F77F"
+    "\U0001F780-\U0001F7FF"
+    "\U0001F800-\U0001F8FF"
+    "\U0001F900-\U0001F9FF"
+    "\U0001FA00-\U0001FA6F"
+    "\U0001FA70-\U0001FAFF"
+    "\U00002600-\U000026FF"
+    "\U00002700-\U000027BF"
+    "\U00002B00-\U00002BFF"
+    "\U0001F1E6-\U0001F1FF"
+    "]+",
+    flags=re.UNICODE,
+)
+
+
+def strip_emoji(s: str) -> str:
+    return _EMOJI_RE.sub("", s).strip()
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
@@ -195,8 +221,8 @@ def main():
     aches = d.get("wispr_achievements", [])[:9]
     text_lines = ["Wispr's own milestones (RemoteNotifications):", ""]
     for a in aches:
-        text_lines.append(f"* {a['title']}")
-        text_lines.append(f"   {a['text']}")
+        text_lines.append(f"* {strip_emoji(a['title'])}")
+        text_lines.append(f"   {strip_emoji(a['text'])}")
         text_lines.append("")
     ax.text(0.0, 1.0, "\n".join(text_lines), va="top", ha="left",
             fontsize=10, family="DejaVu Sans")
