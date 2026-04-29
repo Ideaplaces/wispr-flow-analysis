@@ -20,6 +20,8 @@ The most common edits:
 - `LOCAL_TZ_OFFSET_MINUTES` so hour-of-day charts read in your local time.
 - `AZURE_OPENAI_*` if you have an Azure OpenAI deployment, or `ANTHROPIC_API_KEY`.
 
+`ANTHROPIC_API_KEY` must be a raw API key from console.anthropic.com (starts with `sk-ant-`). Tokens injected into your shell by IDE assistants or wrapper CLIs (Claude Code, Claude Desktop, etc.) are not accepted by the SDK and will fail with a 401.
+
 If you set neither, the AI summary script falls back to a hand-built template that uses your real numbers.
 
 ## 3. Verify your Wispr Flow path
