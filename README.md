@@ -4,6 +4,48 @@ Analytics toolkit for [Wispr Flow](https://wisprflow.ai) voice dictation. Pulls 
 
 This is what happens when you give a power user a year of dictations and a SQLite file. Wispr Flow stores the destination app, the AI-formatted text, the user-edited text, and a stream of milestone notifications, and that is enough to compute insights worth posting about. A few hundred lines of Python plus one LLM call produces a dashboard, an analytics JSON, and four ready-to-paste post variants.
 
+## Local-first by design
+
+Wispr Flow keeps everything on your computer. Every dictation, every transcript, and the audio recordings themselves (for the fraction of dictations where capture is on) live in a single SQLite file:
+
+- macOS: `~/Library/Application Support/Wispr Flow/flow.sqlite`
+- Windows: `%APPDATA%\Wispr Flow\flow.sqlite`
+
+This toolkit opens that file in read-only mode, computes the rollups, writes the results to `outputs/` on the same machine, and stops. **Nothing is uploaded. No telemetry. No analytics service. No phone home.** That is the whole point of open-sourcing this: you can read every line of code that touches your data before you run it.
+
+The only outbound network call is the optional LLM step that turns your aggregate numbers into a draft post. That call sends only rolled-up numbers (counts, averages, edit rates, achievement quotes), never raw dictation text or audio. Skip the AI step and the toolkit is fully offline.
+
+### What's in the file
+
+```mermaid
+erDiagram
+    History {
+        text timestamp "UTC time of the dictation"
+        text app "Destination app (Cursor, Slack, etc.)"
+        text url "URL if dictated into a browser"
+        int numWords
+        float duration "Seconds of speech"
+        text formattedText "Wispr's AI-cleaned version"
+        text editedText "What you actually shipped"
+        int numWordsCorrected
+        int numDictionaryReplacements
+        float formattingDivergenceScore
+        blob audio "Raw audio (when capture is on)"
+        blob opusChunks "Streaming audio chunks"
+        text axText "Screen context at moment of speech"
+        text axHTML
+        text detectedLanguage
+    }
+    RemoteNotifications {
+        text type "achievement, etc."
+        text title "Milestone title"
+        text text "Achievement copy quoted in share posts"
+        text createdAt
+    }
+```
+
+`History` is the main rollup source. `RemoteNotifications` provides the quotable achievement hooks ("You are a living legend. No one has gotten this far."). The `Dictionary` and `Polish` tables also live in the same file and are surfaced in `outputs/analytics.json` for downstream use.
+
 ## What you get
 
 A single dashboard PNG and a JSON file with everything underneath, plus four LLM-generated post variants ready to paste into LinkedIn or X.
@@ -67,27 +109,13 @@ The fourth variant (`narrative_heavy`) generates when you run the script. Pick w
 
 ## Why Wispr Flow's schema unlocks this
 
-Wispr Flow's `History` table records, per dictation:
+Most dictation tools store flat text and a timestamp. Wispr Flow stores the full picture, and this script is what falls out of that. `app` plus `formattedText` vs `editedText` together tell you exactly how your style changes depending on who is on the other end. That is the two-voices analysis. `RemoteNotifications` makes the quotable achievement hooks possible.
 
-- `app` and `url` (where the dictation was sent)
-- `formattedText` (Wispr's AI-cleaned version) and `editedText` (what you actually shipped after manual edits)
-- `numWordsCorrected`, `numDictionaryReplacements` (Wispr's own correction count)
-- `formattingDivergenceScore` (how much Wispr cleaned up the raw ASR)
-- `audio` blobs and `opusChunks` for a fraction of dictations
-- `axText` and `axHTML` (the screen context at the moment you spoke)
-- `Dictionary`, `Polish`, `RemoteNotifications` tables alongside `History`
-
-That schema is what makes the two-voices analysis possible. `app` plus `formattedText` vs `editedText` together tell you exactly how your style changes depending on who is on the other end. `RemoteNotifications` makes the quotable achievement hooks possible. Most dictation tools store flat text and a timestamp. Wispr Flow stores the full picture, and this script is what falls out of that.
-
-This script uses `app`, `formattedText` vs `editedText` (for the edit-rate split), `numWords`, `duration`, `timestamp`, `detectedLanguage`, plus `RemoteNotifications` for the achievement quotes. The richer columns (`axText`, `audio`, etc.) are surfaced in `outputs/analytics.json` for downstream use.
+The toolkit reads `app`, `formattedText` vs `editedText` (for the edit-rate split), `numWords`, `duration`, `timestamp`, `detectedLanguage`, plus `RemoteNotifications` for the achievement quotes. The richer columns (`axText`, `audio`, etc.) are surfaced in `outputs/analytics.json` for downstream use.
 
 ## How the two-voices analysis works
 
 Apps in `config.AI_FACING_APPS` (Cursor, VS Code, Claude Desktop) almost never get edited after Wispr formats them. Apps in `config.HUMAN_FACING_APPS` (Slack, Discord, WhatsApp, Messages) almost always do. The script reports both blocks separately, with their own word counts, WPM, edit rates, and time-saved figures. Adjust the two sets in `config.py` to match how you actually use Wispr.
-
-## Privacy
-
-Everything runs locally. The script never uploads your dictations or audio anywhere. The only network call is the LLM provider (Azure OpenAI or Anthropic) for the share-summary step, and that call sends only your aggregate numbers, never raw dictation text. If you skip the AI step, no data leaves your machine.
 
 ## License
 
