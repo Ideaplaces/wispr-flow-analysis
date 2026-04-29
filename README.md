@@ -1,5 +1,7 @@
 # Wispr Flow Analysis
 
+Built by [Chip Rarau (@crarau)](https://github.com/crarau). Open source under [Ideaplaces](https://ideaplaces.com).
+
 Analytics toolkit for [Wispr Flow](https://wisprflow.ai) voice dictation. Pulls your full local corpus, surfaces the patterns the in-app dashboard does not show (per-app split, edit rates, your two distinct voices), and drafts a share-ready summary in your voice using Azure OpenAI or Anthropic.
 
 This is what happens when you give a power user a year of dictations and a SQLite file. Wispr Flow stores the destination app, the AI-formatted text, the user-edited text, and a stream of milestone notifications, and that is enough to compute insights worth posting about. A few hundred lines of Python plus one LLM call produces a dashboard, an analytics JSON, and four ready-to-paste post variants.
@@ -123,4 +125,4 @@ MIT. See [LICENSE](LICENSE).
 
 ## Credits
 
-Built by a Wispr Flow power user. Not affiliated with Wispr Flow. Open source so anyone running Wispr Flow can point it at their own `flow.sqlite` and see the same kind of breakdown.
+Built by [Chip Rarau (@crarau)](https://github.com/crarau), a Wispr Flow power user. Not affiliated with Wispr Flow. Released under [Ideaplaces](https://ideaplaces.com) so anyone running Wispr Flow can point it at their own `flow.sqlite` and see the same kind of breakdown.
