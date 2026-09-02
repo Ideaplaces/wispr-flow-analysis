@@ -75,21 +75,48 @@ TYPING_SPEEDS = {"casual": 35, "professional": 60, "fast": 80}
 # Override LOCAL_TZ_OFFSET_MINUTES in env if you live elsewhere.
 LOCAL_TZ_OFFSET_MINUTES = int(os.environ.get("LOCAL_TZ_OFFSET_MINUTES", "-240"))
 
-# Apps where dictation goes to AI tools (Cursor, VS Code, Claude Desktop).
-AI_FACING_APPS = {
-    "com.todesktop.230313mzl4w4u92",  # Cursor
-    "com.microsoft.VSCode",
-    "com.anthropic.claudefordesktop",
-}
+def _app_set(env_name: str, defaults: set) -> set:
+    """Let the user replace an app set from the environment.
 
-# Apps where dictation goes to other humans.
-HUMAN_FACING_APPS = {
-    "com.tinyspeck.slackmacgap",       # Slack
-    "com.hnc.Discord",
-    "net.whatsapp.WhatsApp",
-    "com.apple.MobileSMS",
-    "org.whispersystems.signal-desktop",
-}
+    The two-voices analysis is the headline insight, and it silently reports
+    zero words when none of the user's apps appear in these sets. Dictating
+    into Codex, Telegram or a browser instead of Cursor and Slack was enough
+    to empty the panel with no warning. Overriding meant editing this tracked
+    file, which then conflicts on every pull, so accept a comma-separated
+    bundle ID list from the environment instead.
+    """
+    raw = os.environ.get(env_name)
+    if not raw:
+        return set(defaults)
+    return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+# Apps where dictation goes to AI tools. Override with AI_FACING_APPS, a
+# comma-separated list of bundle IDs. Run scripts/analytics.py once and read
+# the per_app block in outputs/analytics.json to find your own IDs.
+AI_FACING_APPS = _app_set(
+    "AI_FACING_APPS",
+    {
+        "com.todesktop.230313mzl4w4u92",  # Cursor
+        "com.microsoft.VSCode",
+        "com.anthropic.claudefordesktop",
+        "com.openai.codex",
+    },
+)
+
+# Apps where dictation goes to other humans. Override with HUMAN_FACING_APPS.
+HUMAN_FACING_APPS = _app_set(
+    "HUMAN_FACING_APPS",
+    {
+        "com.tinyspeck.slackmacgap",       # Slack
+        "com.hnc.Discord",
+        "net.whatsapp.WhatsApp",
+        "com.apple.MobileSMS",
+        "org.whispersystems.signal-desktop",
+        "com.tdesktop.Telegram",
+        "com.automattic.beeper.desktop",   # bridges several chat networks
+    },
+)
 
 # Friendly labels for charts.
 APP_LABELS = {
@@ -102,6 +129,11 @@ APP_LABELS = {
     "net.whatsapp.WhatsApp": "WhatsApp",
     "com.hnc.Discord": "Discord",
     "org.whispersystems.signal-desktop": "Signal",
+    "com.openai.codex": "Codex",
+    "com.tdesktop.Telegram": "Telegram",
+    "com.automattic.beeper.desktop": "Beeper",
+    "company.thebrowser.dia": "Dia",
+    "com.electron.wispr-flow": "Wispr Flow",
     "com.google.Chrome": "Chrome",
     "com.apple.Safari": "Safari",
 }
