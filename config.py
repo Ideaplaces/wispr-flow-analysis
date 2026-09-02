@@ -1,13 +1,53 @@
 """Configuration for wispr-flow-analysis.
 
-Override defaults by setting the matching environment variables. The repo
-ships with sensible macOS defaults and falls back to a local snapshot copy.
+Override defaults by setting the matching environment variables, either in the
+shell or in a .env file next to this module. The repo ships with sensible
+macOS defaults and falls back to a local snapshot copy.
 """
 
 import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+
+
+def _load_env_file(path: Path) -> None:
+    """Read key=value pairs out of .env and into os.environ.
+
+    SETUP.md tells users to copy .env.example to .env, so something has to
+    actually read it. Before this, LOCAL_TZ_OFFSET_MINUTES and the API keys
+    were silently ignored unless the user exported them by hand.
+
+    python-dotenv is marked optional in requirements.txt, so fall back to a
+    small parser when the package is absent. Both paths leave already-set
+    environment variables alone, which keeps one-off overrides such as
+    `FLOW_SQLITE_PATH=... python scripts/analytics.py` working.
+    """
+    if not path.exists():
+        return
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        pass
+    else:
+        load_dotenv(path, override=False)
+        return
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key:
+            os.environ.setdefault(key, value)
+
+
+_load_env_file(ROOT / ".env")
 
 # ---------------------------------------------------------------------------
 # Source database
