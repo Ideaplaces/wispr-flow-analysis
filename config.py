@@ -134,6 +134,9 @@ APP_LABELS = {
     "com.automattic.beeper.desktop": "Beeper",
     "company.thebrowser.dia": "Dia",
     "com.electron.wispr-flow": "Wispr Flow",
+    "com.genos.littlebird": "Littlebird",
+    "com.nousresearch.hermes": "Hermes",
+    "screenpi.pe": "screenpipe",
     "com.google.Chrome": "Chrome",
     "com.apple.Safari": "Safari",
 }
