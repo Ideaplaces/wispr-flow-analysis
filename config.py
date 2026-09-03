@@ -1,13 +1,53 @@
 """Configuration for wispr-flow-analysis.
 
-Override defaults by setting the matching environment variables. The repo
-ships with sensible macOS defaults and falls back to a local snapshot copy.
+Override defaults by setting the matching environment variables, either in the
+shell or in a .env file next to this module. The repo ships with sensible
+macOS defaults and falls back to a local snapshot copy.
 """
 
 import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
+
+
+def _load_env_file(path: Path) -> None:
+    """Read key=value pairs out of .env and into os.environ.
+
+    SETUP.md tells users to copy .env.example to .env, so something has to
+    actually read it. Before this, LOCAL_TZ_OFFSET_MINUTES and the API keys
+    were silently ignored unless the user exported them by hand.
+
+    python-dotenv is marked optional in requirements.txt, so fall back to a
+    small parser when the package is absent. Both paths leave already-set
+    environment variables alone, which keeps one-off overrides such as
+    `FLOW_SQLITE_PATH=... python scripts/analytics.py` working.
+    """
+    if not path.exists():
+        return
+
+    try:
+        from dotenv import load_dotenv
+    except ImportError:
+        pass
+    else:
+        load_dotenv(path, override=False)
+        return
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
+            value = value[1:-1]
+        if key:
+            os.environ.setdefault(key, value)
+
+
+_load_env_file(ROOT / ".env")
 
 # ---------------------------------------------------------------------------
 # Source database
@@ -35,21 +75,48 @@ TYPING_SPEEDS = {"casual": 35, "professional": 60, "fast": 80}
 # Override LOCAL_TZ_OFFSET_MINUTES in env if you live elsewhere.
 LOCAL_TZ_OFFSET_MINUTES = int(os.environ.get("LOCAL_TZ_OFFSET_MINUTES", "-240"))
 
-# Apps where dictation goes to AI tools (Cursor, VS Code, Claude Desktop).
-AI_FACING_APPS = {
-    "com.todesktop.230313mzl4w4u92",  # Cursor
-    "com.microsoft.VSCode",
-    "com.anthropic.claudefordesktop",
-}
+def _app_set(env_name: str, defaults: set) -> set:
+    """Let the user replace an app set from the environment.
 
-# Apps where dictation goes to other humans.
-HUMAN_FACING_APPS = {
-    "com.tinyspeck.slackmacgap",       # Slack
-    "com.hnc.Discord",
-    "net.whatsapp.WhatsApp",
-    "com.apple.MobileSMS",
-    "org.whispersystems.signal-desktop",
-}
+    The two-voices analysis is the headline insight, and it silently reports
+    zero words when none of the user's apps appear in these sets. Dictating
+    into Codex, Telegram or a browser instead of Cursor and Slack was enough
+    to empty the panel with no warning. Overriding meant editing this tracked
+    file, which then conflicts on every pull, so accept a comma-separated
+    bundle ID list from the environment instead.
+    """
+    raw = os.environ.get(env_name)
+    if not raw:
+        return set(defaults)
+    return {part.strip() for part in raw.split(",") if part.strip()}
+
+
+# Apps where dictation goes to AI tools. Override with AI_FACING_APPS, a
+# comma-separated list of bundle IDs. Run scripts/analytics.py once and read
+# the per_app block in outputs/analytics.json to find your own IDs.
+AI_FACING_APPS = _app_set(
+    "AI_FACING_APPS",
+    {
+        "com.todesktop.230313mzl4w4u92",  # Cursor
+        "com.microsoft.VSCode",
+        "com.anthropic.claudefordesktop",
+        "com.openai.codex",
+    },
+)
+
+# Apps where dictation goes to other humans. Override with HUMAN_FACING_APPS.
+HUMAN_FACING_APPS = _app_set(
+    "HUMAN_FACING_APPS",
+    {
+        "com.tinyspeck.slackmacgap",       # Slack
+        "com.hnc.Discord",
+        "net.whatsapp.WhatsApp",
+        "com.apple.MobileSMS",
+        "org.whispersystems.signal-desktop",
+        "com.tdesktop.Telegram",
+        "com.automattic.beeper.desktop",   # bridges several chat networks
+    },
+)
 
 # Friendly labels for charts.
 APP_LABELS = {
@@ -62,6 +129,14 @@ APP_LABELS = {
     "net.whatsapp.WhatsApp": "WhatsApp",
     "com.hnc.Discord": "Discord",
     "org.whispersystems.signal-desktop": "Signal",
+    "com.openai.codex": "Codex",
+    "com.tdesktop.Telegram": "Telegram",
+    "com.automattic.beeper.desktop": "Beeper",
+    "company.thebrowser.dia": "Dia",
+    "com.electron.wispr-flow": "Wispr Flow",
+    "com.genos.littlebird": "Littlebird",
+    "com.nousresearch.hermes": "Hermes",
+    "screenpi.pe": "screenpipe",
     "com.google.Chrome": "Chrome",
     "com.apple.Safari": "Safari",
 }
